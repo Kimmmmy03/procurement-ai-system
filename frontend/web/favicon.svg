@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1025"/>
+      <stop offset="100%" stop-color="#050510"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <!-- Letter P -->
+  <text x="28" y="46" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="38" fill="white">P</text>
+  <!-- AI sparkle star -->
+  <g transform="translate(50,14)">
+    <path d="M0,-7 L1.5,-2 L7,0 L1.5,2 L0,7 L-1.5,2 L-7,0 L-1.5,-2 Z" fill="#00E5FF" opacity="0.95"/>
+    <path d="M0,-4 L0.8,-1.2 L4,0 L0.8,1.2 L0,4 L-0.8,1.2 L-4,0 L-0.8,-1.2 Z" fill="white" opacity="0.6"/>
+  </g>
+</svg>

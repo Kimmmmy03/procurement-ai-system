@@ -1,0 +1,158 @@
+# =============================================
+# Procurement AI System — .gitignore
+# =============================================
+
+# ----- Python / Backend -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+backend/venv/
+venv/
+.venv/
+env/
+ENV/
+
+# Environment variables (SECRETS — never commit)
+.env
+.env.*
+!.env.example
+
+# SQLite database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# IDE / Editor
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ----- Flutter / Dart / Frontend -----
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.packages
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/coverage/
+frontend/doc/api/
+frontend/.metadata
+
+# Flutter generated
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# Symbolication & obfuscation
+app.*.symbols
+app.*.map.json
+
+# Android
+frontend/android/app/debug/
+frontend/android/app/profile/
+frontend/android/app/release/
+frontend/android/.gradle/
+frontend/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+
+# iOS
+frontend/ios/Pods/
+frontend/ios/.symlinks/
+**/ios/**/GeneratedPluginRegistrant.*
+**/ios/Flutter/flutter_export_environment.sh
+
+# Windows
+frontend/windows/flutter/generated_plugin_registrant.cc
+frontend/windows/flutter/generated_plugin_registrant.h
+frontend/windows/flutter/generated_plugins.cmake
+
+# Web
+frontend/web/favicon.png
+
+# macOS
+frontend/macos/Flutter/GeneratedPluginRegistrant.swift
+frontend/macos/Flutter/ephemeral/
+
+# Linux
+frontend/linux/flutter/generated_plugin_registrant.cc
+frontend/linux/flutter/generated_plugin_registrant.h
+frontend/linux/flutter/generated_plugins.cmake
+
+# ----- Logs -----
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ----- Testing -----
+htmlcov/
+.coverage
+.coverage.*
+.nox/
+.tox/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# ----- Build artifacts -----
+*.class
+*.dll
+*.exe
+*.o
+*.obj
+
+# ----- Claude Code -----
+.claude/
+
+# ----- Misc -----
+.history
+.svn/
+.buildlog/
+.build/
+migrate_working_dir/
+*.bak
+*.tmp
+*.temp
+
+# ----- Documentation (keep only README) -----
+*.md
+!README.md

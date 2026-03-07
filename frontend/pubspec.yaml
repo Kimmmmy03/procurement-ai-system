@@ -1,0 +1,66 @@
+name: procurement_ai
+description: AI-powered procurement planning and management system
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # UI & Icons
+  cupertino_icons: ^1.0.2
+  flutter_svg: ^2.0.9
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # HTTP & API
+  http: ^1.1.0
+  dio: ^5.4.0
+  http_parser: ^4.0.0
+  
+  # File Handling
+  file_picker: ^6.1.1
+  path_provider: ^2.1.1
+  
+  # Charts & Visualization
+  fl_chart: ^0.65.0
+  syncfusion_flutter_charts: ^24.1.41
+  
+  # PDF Generation & Viewing
+  pdf: ^3.10.7
+  printing: ^5.11.1
+  
+  # URL Launcher (mailto: links)
+  url_launcher: ^6.2.1
+
+  # Date & Time
+  intl: ^0.18.1
+  
+  # Storage
+  shared_preferences: ^2.2.2
+  
+  # Navigation
+  go_router: ^13.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  # Add assets (when needed)
+  # assets:
+  #   - assets/images/
+  #   - assets/icons/
+  
+  # Add custom fonts if needed
+  # fonts:
+  #   - family: CustomFont
+  #     fonts:
+  #       - asset: fonts/CustomFont-Regular.ttf
