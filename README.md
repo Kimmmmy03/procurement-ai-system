@@ -423,42 +423,6 @@ USE_AZURE_AI=true
 ```
 
 ---
-
-## Deployment
-
-### CI/CD Pipelines
-
-Two GitHub Actions workflows handle automatic deployment on push to `main`:
-
-| Workflow | Trigger | Target |
-|---|---|---|
-| `main_procurement-ai-backend.yml` | `backend/**` changes | Azure App Service (Web App) |
-| `deploy-frontend.yml` | `frontend/**` changes | Azure Static Web App |
-
-### Azure Services
-
-| Service | Purpose | Recommended Plan |
-|---|---|---|
-| Azure App Service | FastAPI backend | B3 ($52/mo) or P1v3 ($108/mo) |
-| Azure Static Web Apps | Flutter web frontend | Free tier ($0/mo) |
-| Azure SQL | Production database | Basic (~$5/mo) |
-| Azure AI Foundry | 3-agent AI workflow | ~$5-20/mo (usage-based) |
-
-> **Note:** B1 plan (1 core, 1.75GB RAM) is insufficient for this system. Recommended minimum is **B3** (4 cores, 7GB RAM) or **P1v3** (2 cores, 8GB RAM + autoscale) to handle AI agent initialization, pandas processing, and PDF parsing concurrently.
-
-### Manual Deploy
-
-```bash
-# Backend
-cd backend
-az webapp up --name procurement-ai-backend --resource-group procurement-rg
-
-# Frontend
-cd frontend
-flutter build web --release
-swa deploy build/web --deployment-token YOUR_TOKEN --env production
-```
-
 ---
 
 ## Project Structure
