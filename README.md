@@ -18,6 +18,7 @@
   <a href="#features">Features</a> &bull;
   <a href="#architecture">Architecture</a> &bull;
   <a href="#quick-start">Quick Start</a> &bull;
+  <a href="#database-setup">Database Setup</a> &bull;
   <a href="#ai-agent-pipeline">AI Pipeline</a> &bull;
   <a href="#api-reference">API Reference</a> &bull;
   <a href="#deployment">Deployment</a>
@@ -136,7 +137,10 @@ git clone https://github.com/Kimmmmy03/procurement-ai-system.git
 cd procurement-ai-system/backend
 
 # Create virtual environment
-python -m venv venv
+# Windows (use py launcher if `python` is not in PATH)
+py -m venv venv
+# macOS/Linux
+python3 -m venv venv
 
 # Activate (Windows)
 venv\Scripts\activate
@@ -175,6 +179,144 @@ flutter run -d windows         # Desktop
 4. **Submit & Approve** &mdash; Submit batch, switch to Executive role, approve/reject
 5. **Generate POs** &mdash; Generate purchase orders grouped by supplier, export PDF, send emails
 6. **Warehouse Stock** &mdash; View stock distribution across 15 channels, edit values inline
+
+---
+
+## Database Setup
+
+The system supports two database modes controlled by `USE_AZURE_SQL` in `backend/.env`.
+
+### Option A: SQLite (Development — zero setup)
+
+```env
+USE_AZURE_SQL=false
+```
+
+The database file (`procurement.db`) is auto-created on first startup. No installation required. Use this for local development and testing.
+
+---
+
+### Option B: Azure SQL (Production)
+
+#### Step 1 — Install ODBC Driver 17
+
+The backend requires **Microsoft ODBC Driver 17 for SQL Server**.
+
+**Windows:**
+
+Download and install from Microsoft:
+[https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server)
+
+Verify installation:
+```bash
+python -c "import pyodbc; print([d for d in pyodbc.drivers() if 'SQL Server' in d])"
+# Expected: ['ODBC Driver 17 for SQL Server']
+```
+
+**macOS:**
+```bash
+brew tap microsoft/mssql-release https://github.com/microsoft/homebrew-mssql-release
+brew install msodbcsql17
+```
+
+**Ubuntu/Debian:**
+```bash
+curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql17
+```
+
+---
+
+#### Step 2 — Configure Azure SQL Firewall
+
+Azure SQL blocks all external connections by default. You must whitelist your IP.
+
+1. Go to **Azure Portal** → navigate to your SQL Server (not the database)
+2. Left menu → **Networking** (or **Firewalls and virtual networks**)
+3. Click **+ Add client IP** — Azure auto-detects your current public IP
+4. Click **Save** and wait ~2 minutes for the rule to propagate
+
+To find your current public IP:
+```bash
+curl -s https://api.ipify.org
+```
+
+> **Note:** If your IP changes (home networks, VPNs), you must add the new IP each time. For a stable setup, use an Azure Virtual Network or configure an IP range.
+
+---
+
+#### Step 3 — Configure `.env`
+
+```env
+# Switch to Azure SQL
+USE_AZURE_SQL=true
+
+# Azure SQL credentials
+AZURE_SQL_SERVER=your-server-name.database.windows.net
+AZURE_SQL_DATABASE=your-database-name
+AZURE_SQL_USERNAME=your-sql-username
+AZURE_SQL_PASSWORD=your-password
+AZURE_SQL_DRIVER=ODBC Driver 17 for SQL Server
+```
+
+---
+
+#### Step 4 — Verify Connection
+
+Test the connection before starting the backend:
+
+```bash
+cd backend
+venv\Scripts\activate   # Windows
+python -c "
+import pyodbc, os
+from dotenv import load_dotenv
+load_dotenv()
+
+conn_str = (
+    f\"Driver={{{os.getenv('AZURE_SQL_DRIVER')}}};\"
+    f\"Server={os.getenv('AZURE_SQL_SERVER')};\"
+    f\"Database={os.getenv('AZURE_SQL_DATABASE')};\"
+    f\"Uid={os.getenv('AZURE_SQL_USERNAME')};\"
+    f\"Pwd={os.getenv('AZURE_SQL_PASSWORD')};\"
+    'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
+)
+conn = pyodbc.connect(conn_str)
+print('Azure SQL connected successfully')
+conn.close()
+"
+```
+
+---
+
+#### Step 5 — Initialise Schema
+
+On first startup with `USE_AZURE_SQL=true`, the backend automatically creates all 14 tables via `database_factory.py`. Simply start the server:
+
+```bash
+python main.py
+```
+
+Look for this in the logs to confirm Azure SQL is active:
+```
+✅ Database connected successfully: Azure SQL
+   📦 X items loaded from database
+```
+
+If you see `[WARN] Falling back to SQLite...`, check the troubleshooting section below.
+
+---
+
+#### Azure SQL Troubleshooting
+
+| Error | Cause | Fix |
+|---|---|---|
+| `Client with IP address '...' is not allowed` | IP not whitelisted | Add your IP in Azure Portal → SQL Server → Networking |
+| `cannot import name 'ResponseStreamEventType'` | Wrong azure-ai-projects version | Run `pip install -r requirements.txt` to get correct version |
+| `Data source name not found` | ODBC driver missing or wrong version | Install ODBC Driver 17 and set `AZURE_SQL_DRIVER=ODBC Driver 17 for SQL Server` in `.env` |
+| `Login failed for user` | Wrong credentials | Double-check `AZURE_SQL_USERNAME` and `AZURE_SQL_PASSWORD` in `.env` |
+| Still falls back to SQLite | Exception swallowed silently | Run the Step 4 connection test script to see the real error |
 
 ---
 
@@ -254,8 +396,8 @@ Three chained Azure AI Foundry Agents process procurement data sequentially:
 | `custom_seasonality_events` | Company-specific seasonal demand events |
 | `shipping_documents` | Attached docs per PO |
 
-**Development:** `USE_AZURE_SQL=false` uses local SQLite (auto-created)
-**Production:** `USE_AZURE_SQL=true` uses Azure SQL with ODBC Driver 18
+**Development:** `USE_AZURE_SQL=false` — SQLite auto-created, no setup needed
+**Production:** `USE_AZURE_SQL=true` — Azure SQL with ODBC Driver 17 for SQL Server
 
 ---
 
@@ -272,10 +414,12 @@ AZURE_SQL_SERVER=your-server.database.windows.net
 AZURE_SQL_DATABASE=procurement-db
 AZURE_SQL_USERNAME=your-username
 AZURE_SQL_PASSWORD=your-password
+AZURE_SQL_DRIVER=ODBC Driver 17 for SQL Server
 
 # Azure AI Foundry
 AZURE_AI_ENDPOINT=https://your-resource.services.ai.azure.com/api/projects/your-project
 AZURE_AI_WORKFLOW_NAME=intelligent-procurement-flow
+USE_AZURE_AI=true
 ```
 
 ---
@@ -383,6 +527,9 @@ procurement-system/
 | Issue | Solution |
 |---|---|
 | Backend won't start | Check Python 3.10+, activate venv, `pip install -r requirements.txt` |
+| `python` not found on Windows | Use `py -m venv venv` instead of `python -m venv venv` |
+| Falls back to SQLite | Add your IP to Azure SQL firewall; run the Step 4 connection test to see the real error |
+| Wrong ODBC driver | Install ODBC Driver 17 and set `AZURE_SQL_DRIVER=ODBC Driver 17 for SQL Server` in `.env` |
 | Backend crashes on Azure | Upgrade from B1 to B3 or P1v3 plan (needs more RAM) |
 | AI agents not connecting | System auto-falls back to DB calculations; check `AZURE_AI_ENDPOINT` |
 | Frontend can't reach backend | Confirm port 8000, check `baseUrl` in `api_service.dart` |

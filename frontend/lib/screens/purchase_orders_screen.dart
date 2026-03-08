@@ -983,8 +983,19 @@ class _PurchaseOrdersScreenState extends State<PurchaseOrdersScreen> {
     final qtyControllers = lineItems.map((li) => TextEditingController(text: li.confirmedQty.toString())).toList();
     final priceControllers = lineItems.map((li) => TextEditingController(text: li.confirmedPrice.toStringAsFixed(2))).toList();
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    final etdController = TextEditingController(text: todayStr);
+    // Default ETD: use existing etd_date if already set, otherwise today + lead time from the PO's PRs
+    String etdDefault;
+    if (po['etd_date'] != null && (po['etd_date'] as String).isNotEmpty) {
+      etdDefault = po['etd_date'] as String;
+    } else {
+      // Use max lead time across line items; fall back to 14 days
+      final leadDays = (detail['supplier_lead_time'] as int?) ??
+          (po['supplier_lead_time'] as int?) ??
+          14;
+      final etdDate = today.add(Duration(days: leadDays));
+      etdDefault = '${etdDate.year}-${etdDate.month.toString().padLeft(2, '0')}-${etdDate.day.toString().padLeft(2, '0')}';
+    }
+    final etdController = TextEditingController(text: etdDefault);
     final reasonController = TextEditingController();
     bool isSubmitting = false;
 
@@ -1180,16 +1191,33 @@ class _PurchaseOrdersScreenState extends State<PurchaseOrdersScreen> {
                       child: TextField(
                         controller: etdController,
                         readOnly: true,
-                        style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13),
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
                         decoration: InputDecoration(
-                          labelText: 'ETD (Today\'s Date)',
-                          labelStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
+                          labelText: 'ETD (Estimated Time of Departure)',
+                          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
                           isDense: true,
                           filled: true,
-                          fillColor: Colors.white.withOpacity(0.05),
+                          fillColor: Colors.white.withOpacity(0.08),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                          prefixIcon: Icon(Icons.calendar_today, size: 16, color: Colors.white.withOpacity(0.3)),
+                          prefixIcon: Icon(Icons.calendar_today, size: 16, color: Colors.white.withOpacity(0.6)),
+                          suffixIcon: Icon(Icons.edit_calendar, size: 16, color: Colors.white.withOpacity(0.6)),
                         ),
+                        onTap: () async {
+                          final parts = etdController.text.split('-');
+                          final initial = parts.length == 3
+                              ? DateTime.tryParse(etdController.text) ?? DateTime.now()
+                              : DateTime.now();
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: initial,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(const Duration(days: 730)),
+                          );
+                          if (picked != null) {
+                            etdController.text =
+                                '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+                          }
+                        },
                       ),
                     ),
                     const SizedBox(width: 12),

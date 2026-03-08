@@ -15,7 +15,7 @@ passlib[bcrypt]==1.7.4
 # --- Azure Services ---
 azure-storage-blob>=12.19.0
 azure-identity>=1.15.0
-azure-ai-projects>=2.0.0b1
+azure-ai-projects==1.0.0
 azure-core>=1.30.0
 
 # --- Database ---

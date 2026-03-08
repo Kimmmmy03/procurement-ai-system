@@ -1518,16 +1518,16 @@ class DatabaseService:
         print(f"📊 Retrieved {len(items)} items from database")
         
         # Calculate totals from database items
-        total_value = sum(item.get('unit_price', 0) * item.get('sales_last_30_days', 0) for item in items)
+        total_value = sum((item.get('unit_price') or 0) * (item.get('sales_last_30_days') or 0) for item in items)
         
         # Count critical/warning items
         critical_count = 0
         warning_count = 0
         for item in items:
-            daily_sales = item.get('sales_last_30_days', 0) / 30
+            daily_sales = (item.get('sales_last_30_days') or 0) / 30
             if daily_sales > 0:
-                days_coverage = item.get('current_stock', 0) / daily_sales
-                lead_time = item.get('lead_time_days', 14)
+                days_coverage = (item.get('current_stock') or 0) / daily_sales
+                lead_time = item.get('lead_time_days') or 14
                 if days_coverage < lead_time:
                     critical_count += 1
                 elif days_coverage < lead_time * 2:

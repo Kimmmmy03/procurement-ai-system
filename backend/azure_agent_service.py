@@ -14,8 +14,24 @@ from typing import Dict, Any, List, Optional
 from dotenv import load_dotenv
 
 from azure.ai.projects import AIProjectClient
-from azure.ai.projects.models import ResponseStreamEventType
 from azure.identity import DefaultAzureCredential
+
+try:
+    from azure.ai.projects.models import ResponseStreamEventType
+except ImportError:
+    try:
+        from azure.ai.agents.models import AgentStreamEvent as _AgentStreamEvent
+        class ResponseStreamEventType:
+            AGENT_TURN_STARTED = _AgentStreamEvent.THREAD_RUN_IN_PROGRESS
+            TEXT_DELTA         = _AgentStreamEvent.THREAD_MESSAGE_DELTA
+            TEXT_DONE          = _AgentStreamEvent.THREAD_MESSAGE_COMPLETED
+            AGENT_TURN_DONE    = _AgentStreamEvent.THREAD_RUN_COMPLETED
+    except ImportError:
+        class ResponseStreamEventType:
+            AGENT_TURN_STARTED = "agent_turn_started"
+            TEXT_DELTA         = "text_delta"
+            TEXT_DONE          = "text_done"
+            AGENT_TURN_DONE    = "agent_turn_done"
 
 # Load environment variables
 load_dotenv()
