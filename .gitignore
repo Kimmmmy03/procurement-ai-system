@@ -140,8 +140,7 @@ coverage.xml
 *.o
 *.obj
 
-# ----- Claude Code -----
-.claude/
+
 
 # ----- Misc -----
 .history
